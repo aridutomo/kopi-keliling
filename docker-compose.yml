@@ -35,12 +35,17 @@ services:
       JWT_SECRET: ${JWT_SECRET:-ganti-ini-dengan-secret-yang-kuat-di-production}
       GIN_MODE: ${GIN_MODE:-release}
     ports:
-      - "${HOST_PORT:-7001}:8080"
+      # Bind ke localhost saja (debug lokal). Akses publik lewat reverse proxy (Caddy).
+      - "127.0.0.1:${HOST_PORT:-7001}:8080"
     depends_on:
       mysql:
         condition: service_healthy
     networks:
-      - kopi_net
+      kopi_net: {}
+      # Jaringan proxy bersama; Caddy menjangkau app via alias ini (mis. app-prod / app-stg)
+      web:
+        aliases:
+          - ${PROXY_UPSTREAM:-anaki-app}
     logging:
       driver: "json-file"
       options:
@@ -54,3 +59,7 @@ volumes:
 networks:
   kopi_net:
     driver: bridge
+  # Jaringan eksternal yang dibagi dengan stack proxy (Caddy).
+  # Buat sekali di server: docker network create web
+  web:
+    external: true

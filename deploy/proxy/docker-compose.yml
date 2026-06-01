@@ -1,0 +1,31 @@
+# Reverse proxy bersama (Caddy) — HTTPS Let's Encrypt otomatis.
+# Menjangkau app prod/staging lewat jaringan eksternal "web".
+#
+# Prasyarat (sekali per server):  docker network create web
+# Jalankan:                       docker compose -p anaki-proxy up -d
+#
+# Sertifikat tersimpan di volume caddy_data (auto-renew). Saat pindah server,
+# tidak perlu menyalin sertifikat — Caddy menerbitkan ulang otomatis selama
+# DNS sudah mengarah ke server baru.
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,10 @@
+# Ganti domain di bawah dengan milikmu. Caddy otomatis mengurus HTTPS.
+# "app-prod" dan "app-stg" = alias jaringan dari PROXY_UPSTREAM di .env / .env.staging.
+
+coffee.anaki.id {
+	reverse_proxy app-prod:8080
+}
+
+stg-coffee.anaki.id {
+	reverse_proxy app-stg:8080
+}
