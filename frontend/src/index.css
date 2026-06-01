@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&family=Rubik:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-heading {
+    font-family: 'Rubik', ui-sans-serif, system-ui, sans-serif;
+  }
+  /* Visible focus ring for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid #c4621a; /* coffee-600 */
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Clickable affordance */
+  button:not(:disabled), a, [role='button'] {
+    cursor: pointer;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

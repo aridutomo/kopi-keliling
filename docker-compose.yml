@@ -1,0 +1,56 @@
+services:
+  # ─── MySQL Database ──────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-kopi_keliling}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-3306}:3306"   # hanya localhost, tidak expose ke internet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - kopi_net
+
+  # ─── App (Go + Vite static) ───────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-kopi_user}
+      DB_PASSWORD: ${DB_PASSWORD:-kopi_pass123}
+      DB_NAME: ${DB_NAME:-kopi_keliling}
+      JWT_SECRET: ${JWT_SECRET:-ganti-ini-dengan-secret-yang-kuat-di-production}
+      GIN_MODE: ${GIN_MODE:-release}
+    ports:
+      - "${HOST_PORT:-7001}:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - kopi_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  kopi_net:
+    driver: bridge
